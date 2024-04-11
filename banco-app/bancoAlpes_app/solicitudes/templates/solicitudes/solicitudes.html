@@ -29,16 +29,21 @@
                             <th font color="red">ID</th>
                             <th>tipo</th>
                             <th>fecha</th>
+                            <th></th>
                                               </tr>
                         </thead>
                         <tbody>
 
-                        {% for solicitud in solicitud_list %}
+                        {% for solicitud in solicitudesList %}
                         <tr>
                             <td>{{solicitud.id}}</td>
                             <td>{{solicitud.tipo}}</td>
                             <td>{{solicitud.fecha}}</td>
-                            
+                            <td>
+                                <a href="{%url 'solicitudesUpdate' solicitud.id %}">
+                                Editar 
+                                </a>   
+                            </td>                       
                         </tr>
                         {% endfor %}
 

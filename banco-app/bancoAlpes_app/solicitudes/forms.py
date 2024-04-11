@@ -3,7 +3,7 @@ from django import forms
 from .models import Solicitud
 
 class SolicitudForm(forms.ModelForm):
-    class meta: 
+    class Meta: 
         model= Solicitud
         fields=[
             'id',
