@@ -33,7 +33,7 @@ resources:
 
 # Database instance
 - type: compute.v1.instance
-  name: db-instance
+  name: banco-db-instance
   properties:
     zone: us-central1-a
     machineType: https://www.googleapis.com/compute/v1/projects/PROJECT_ID/zones/us-central1-a/machineTypes/e2-micro
@@ -52,7 +52,7 @@ resources:
         type: ONE_TO_ONE_NAT
     tags:
       items: 
-      - firewall-db
+      - db-instance
     metadata:
       items:
       - key: startup-script
@@ -89,7 +89,7 @@ resources:
         type: ONE_TO_ONE_NAT
     tags:
       items: 
-      - firewall-django
+      - rest-django
     metadata:
       items:
       - key: startup-script
@@ -124,7 +124,7 @@ resources:
         type: ONE_TO_ONE_NAT
     tags:
       items: 
-      - firewall-django
+      - rest-django
     metadata:
       items:
       - key: startup-script
@@ -159,7 +159,7 @@ resources:
         type: ONE_TO_ONE_NAT
     tags:
       items: 
-      - firewall-django
+      - rest-django
     metadata:
       items:
       - key: startup-script
@@ -194,7 +194,7 @@ resources:
         type: ONE_TO_ONE_NAT
     tags:
       items: 
-      - firewall-django
+      - rest-django
     metadata:
       items:
       - key: startup-script
