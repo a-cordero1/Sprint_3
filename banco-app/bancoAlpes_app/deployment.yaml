@@ -3,7 +3,7 @@ resources:
 - name: firewall-django
   type: compute.v1.firewall
   properties:
-    network: https://www.googleapis.com/compute/v1/projects/PROJECT_ID/zones/us-central1-a/machineTypes/e2-micro
+    network: https://www.googleapis.com/compute/v1/projects/PROJECT_ID/global/networks/default
     priority: 1000
     direction: INGRESS
     source-ranges: 
@@ -18,7 +18,7 @@ resources:
 - name: firewall-db
   type: compute.v1.firewall
   properties:
-    network: https://www.googleapis.com/compute/v1/projects/PROJECT_ID/zones/us-central1-a/machineTypes/e2-micro
+    network: https://www.googleapis.com/compute/v1/projects/PROJECT_ID/global/networks/default
     priority: 1000
     direction: INGRESS
     sourceRanges: 
