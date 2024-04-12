@@ -1,0 +1,26 @@
+_format_version: "2.1"
+
+services:
+  - host: banco_app_upstream
+    name: banco_app_service
+    protocol: http
+    routes:
+      
+      - name: banco_app
+        paths:
+          - /solicitudes
+          - /solicitudescreate
+          - /solicitudesupdate/
+        strip_path: false
+    
+upstreams:
+  - name: banco_app_upstream
+    targets:
+      - target: 10.128.0.53:8080
+        weight: 100
+      - target: 10.128.0.54:8080
+        weight: 100
+      - target: 10.128.0.55:8080
+        weight: 100
+      - target: 10.128.0.57:8080
+        weight: 100

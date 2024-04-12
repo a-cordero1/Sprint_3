@@ -15,6 +15,66 @@ resources:
       ports: 
       - 8080
 
+- name: services-apps
+  type: compute.v1.firewall
+  properties:
+    network: https://www.googleapis.com/compute/v1/projects/<sprint2-error404-isis2503>/global/networks/default
+    priority: 1000
+    direction: INGRESS
+    sourceTags: 
+    - kong-circuit-breaker
+    targetTags:
+    - rest-django
+    allowed:
+    - IPProtocol: TCP
+      ports: 
+      - 8080
+
+- name: services-apps-web
+  type: compute.v1.firewall
+  properties:
+    network: https://www.googleapis.com/compute/v1/projects/<sprint2-error404-isis2503>/global/networks/default
+    priority: 1000
+    direction: INGRESS
+    sourceRanges: 
+    - 0.0.0.0/0
+    targetTags:
+    - rest-django
+    allowed:
+    - IPProtocol: TCP
+      ports: 
+      - 8080
+
+- name: kong-circuit-breaker
+  type: compute.v1.firewall
+  properties:
+    network: https://www.googleapis.com/compute/v1/projects/<sprint2-error404-isis2503>/global/networks/default
+    priority: 1000
+    direction: INGRESS
+    sourceRanges: 
+    - 0.0.0.0/0
+    targetTags:
+    - kong-circuit-breaker
+    allowed:
+    - IPProtocol: TCP
+      ports: 
+      - 8000
+
+- name: kong-circuit-breaker-admin
+  type: compute.v1.firewall
+  properties:
+    network: https://www.googleapis.com/compute/v1/projects/<sprint2-error404-isis2503>/global/networks/default
+    priority: 1000
+    direction: INGRESS
+    sourceRanges: 
+    - 0.0.0.0/0
+    targetTags:
+    - kong-circuit-breaker
+    allowed:
+    - IPProtocol: TCP
+      ports: 
+      - 8001
+
 - name: firewall-db
   type: compute.v1.firewall
   properties:
@@ -97,13 +157,15 @@ resources:
           #!/bin/bash
           sudo apt-get update
           sudo apt install python3-pip -y
+          sudo mkdir /sprints
+          cd /sprints
           sudo git clone https://github.com/ISIS2503-E404-BancoAlpes/Sprint2.git
           cd Sprint2
           cd banco-app/bancoAlpes_app/
           sudo pip3 install -r requirements.txt
           sudo python3 manage.py makemigrations
           sudo python3 manage.py migrate 
-          python3 manage.py runserver 0.0.0.0:8080&
+          python3 manage.py runserver 0.0.0.0:8080 &
 
 - type: compute.v1.instance
   name: banco-app-consultas-2
@@ -133,13 +195,15 @@ resources:
           #!/bin/bash
           sudo apt-get update
           sudo apt install python3-pip -y
+          sudo mkdir /sprints
+          cd /sprints
           sudo git clone https://github.com/ISIS2503-E404-BancoAlpes/Sprint2.git
           cd Sprint2
           cd banco-app/bancoAlpes_app/
           sudo pip3 install -r requirements.txt
           sudo python3 manage.py makemigrations
           sudo python3 manage.py migrate 
-          python3 manage.py runserver 0.0.0.0:8080&
+          python3 manage.py runserver 0.0.0.0:8080 &
 
 - type: compute.v1.instance
   name: banco-app-editor-1
@@ -169,13 +233,15 @@ resources:
           #!/bin/bash
           sudo apt-get update
           sudo apt install python3-pip -y
+          sudo mkdir /sprints
+          cd /sprints
           sudo git clone https://github.com/ISIS2503-E404-BancoAlpes/Sprint2.git
           cd Sprint2
           cd banco-app/bancoAlpes_app/
           sudo pip3 install -r requirements.txt
           sudo python3 manage.py makemigrations
           sudo python3 manage.py migrate 
-          python3 manage.py runserver 0.0.0.0:8080&
+          python3 manage.py runserver 0.0.0.0:8080 &
 
 - type: compute.v1.instance
   name: banco-app-editor-2
@@ -205,10 +271,53 @@ resources:
           #!/bin/bash
           sudo apt-get update
           sudo apt install python3-pip -y
+          sudo mkdir /sprints
+          cd /sprints
           sudo git clone https://github.com/ISIS2503-E404-BancoAlpes/Sprint2.git
           cd Sprint2
           cd banco-app/bancoAlpes_app/
           sudo pip3 install -r requirements.txt
           sudo python3 manage.py makemigrations
           sudo python3 manage.py migrate 
-          python3 manage.py runserver 0.0.0.0:8080&
+          python3 manage.py runserver 0.0.0.0:8080 &
+
+
+#kong-instance
+
+- type: compute.v1.instance
+  name: kong-instance
+  properties:
+    zone: us-central1-a
+    machineType: https://www.googleapis.com/compute/v1/projects/<sprint2-error404-isis2503>/zones/us-central1-a/machineTypes/e2-micro
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      initializeParams:
+        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2004-focal-v20240307b
+    networkInterfaces:
+    - network: https://www.googleapis.com/compute/v1/projects/<sprint2-error404-isis2503>/global/networks/default
+      networkIP: 10.128.0.51
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    tags:
+      items: 
+      - kong-circuit-breaker
+    metadata:
+      items:
+      - key: startup-script
+        value: |
+          sudo apt-get update
+          sudo apt-get install ca-certificates curl gnupg lsb-release -y
+          sudo mkdir -m 0755 -p /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+          sudo groupadd docker
+          sudo usermod -aG docker $USER
+          newgrp docker
+          sudo docker network create kong-net
+          sudo docker run -d --name kong --network=kong-net –v "$(pwd):/kong/declarative/" -e "KONG_DATABASE=off" -e "KONG_DECLARATIVE_CONFIG=/kong/declarative/kong.yml" -e "KONG_PROXY_ACCESS_LOG=/dev/stdout" -e "KONG_ADMIN_ACCESS_LOG=/dev/stdout" -e "KONG_PROXY_ERROR_LOG=/dev/stderr" -e "KONG_ADMIN_ERROR_LOG=/dev/stderr" -e "KONG_ADMIN_LISTEN=0.0.0.0:8001" -e "KONG_ADMIN_GUI_URL=http://localhost:8002" -p 8000:8000 -p 8001:8001 -p 8002:8002 kong/kong-gateway:2.7.2.0-alpine
