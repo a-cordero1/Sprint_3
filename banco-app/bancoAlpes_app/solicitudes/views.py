@@ -17,8 +17,11 @@ def solicitud_update(request,solicitud_id):
    solicitud= get_solicitud(solicitud_id)
    if request.method == 'POST':
        form= SolicitudForm(request.POST, instance=solicitud)
-       create_solicitud(form) 
-       return HttpResponseRedirect(reverse("solicitudesList"))
+       if form.is_valid():
+        create_solicitud(form) 
+        return HttpResponseRedirect(reverse("solicitudesList"))
+       else:
+        print(form.errors) 
    else: 
 
        form= SolicitudForm(instance=solicitud)

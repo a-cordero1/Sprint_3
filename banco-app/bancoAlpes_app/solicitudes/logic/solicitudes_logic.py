@@ -8,6 +8,7 @@ def get_solicitudes():
 def get_solicitud(solicitud_id):
     return get_object_or_404(Solicitud,pk=solicitud_id)
 
+
 def create_solicitud(form):
     solicitud = form.save()
     solicitud.save()
