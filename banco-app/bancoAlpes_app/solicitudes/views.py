@@ -25,9 +25,9 @@ def solicitud_update(request,solicitud_id):
    else: 
 
        form= SolicitudForm(instance=solicitud)
-       context={
+   context={
            'form': form,
-       }    
+   }    
    return render(request,'solicitudes/update_solicitud.html',context)
 
 def solicitud_create(request):
