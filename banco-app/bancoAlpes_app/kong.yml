@@ -44,6 +44,15 @@ upstreams:
         weight: 100
       - target: 10.128.0.57:8080
         weight: 100
+    healthchecks:
+      active:
+        http_path: /health
+        healthy:
+          interval: 30
+          successes: 2
+        unhealthy:
+          interval: 10
+          http_failures: 2
 
   - name: solicitud_consultas_upstream
     targets:
@@ -51,6 +60,15 @@ upstreams:
         weight: 100
       - target: 10.128.0.54:8080
         weight: 100 
+    healthchecks:
+      active:
+        http_path: /health
+        healthy:
+          interval: 30
+          successes: 2
+        unhealthy:
+          interval: 10
+          http_failures: 2
 
   - name: solicitud_editors_upstream
     targets:
@@ -58,3 +76,12 @@ upstreams:
         weight: 100
       - target: 10.128.0.57:8080
         weight: 100
+    healthchecks:
+      active:
+        http_path: /health
+        healthy:
+          interval: 30
+          successes: 2
+        unhealthy:
+          interval: 10
+          http_failures: 2
